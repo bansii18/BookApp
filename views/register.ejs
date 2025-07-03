@@ -3,14 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
     <title>Register</title>
 </head>
 <body>
     <h1>Register</h1>
     <form method="POST" action="/register">
-        <input type="text" name="username" placeholder="Enter your Username">
-        <input type="email" name="email" placeholder="Enter your Email">
-        <input type="password" name="password" placeholder="Enter your Password">
+        <label for="username">Username:</label>
+        <br>
+        <input type="text" name="username" placeholder="Enter your Username" id="username" required>
+        <br>
+        <label for="email">Email:</label>
+        <br>
+        <input type="email" name="email" placeholder="Enter your Email" id="email" required>
+        <br>
+        <label for="password">Password:</label>
+        <br>
+        <input type="password" name="password" placeholder="Enter your Password" id="password" minlength="6" required>
+        <br>
         <button type="submit">Register</button>
     </form>
 </body>

@@ -11,12 +11,27 @@ const secretKey = 'Krishn@invraj8';
 const user = require("./models/User");
 
 
-
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(cookieParser());
+
+// Route Protection
+const checkAuth = (req,res,next)=>{
+  const token = req.cookies.token;
+  if(!token){
+   return res.redirect("/login");
+  }
+  try{
+  const verified = jwt.verify(token,secretKey);
+  req.user=verified;
+  next();
+  }
+  catch(err){
+    return res.redirect("/login");
+  }
+}
 
 mongoose.connect("mongodb+srv://vraj_10:Atlas123@vrajcluster.f25aaog.mongodb.net/Book?retryWrites=true&w=majority&appName=vrajcluster")
   .then(() => console.log("MongoDB Connection Sucessfull"))
@@ -32,7 +47,7 @@ app.get('/',  (req, res) => {
 
 
 
-app.get('/displayBooks', async (req, res) => {
+app.get('/displayBooks',checkAuth,async (req, res) => {
   try {
     const books = await Book.find();           
     res.render('displayBooks', { books });     
@@ -42,7 +57,7 @@ app.get('/displayBooks', async (req, res) => {
 });
 
 
-app.get('/books/new', (req, res) => {
+app.get('/books/new',checkAuth,(req, res) => {
   res.render('new');
 });
 
@@ -57,26 +72,26 @@ app.post('/books', async (req, res) => {
 
 
 // Edit form
-app.get('/books/:id/edit', async (req, res) => {
+app.get('/books/:id/edit',checkAuth,async (req, res) => {
   const book = await Book.findById(req.params.id);
   res.render('edit', { book });
 });
 
 // Update
-app.post('/books/:id', async (req, res) => {
+app.post('/books/:id',checkAuth,async (req, res) => {
   await Book.findByIdAndUpdate(req.params.id, req.body);
   res.redirect('/displayBooks'); //changed
 });
 
 // Delete
-app.post('/books/:id/delete', async (req, res) => {
+app.post('/books/:id/delete',checkAuth,async (req, res) => {
   await Book.findByIdAndDelete(req.params.id);
   res.redirect('/');
 });
 
 //Register
 
-app.get('/register', (req, res) => {
+app.get('/register',(req, res) => {
   res.render('register');
 });
 
@@ -86,7 +101,7 @@ app.post('/register', async(req,res)=>{
 
   const hashedPassword = await bcrypt.hash(password, 10);
   await user.create({ username,email, password: hashedPassword });
-  res.send('User registered!');
+  res.redirect("/displayBooks");
 });
 
 //login 
@@ -109,4 +124,10 @@ app.post('/login',async(req,res)=>{
     const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
     res.cookie('token', token);
     res.redirect('/displayBooks');
+});
+
+// logout
+app.post('/logout', (req, res) => {
+  res.clearCookie('token');
+  res.redirect('/');
 });
