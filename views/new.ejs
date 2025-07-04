@@ -16,10 +16,13 @@
         <label>Description</label>
         <textarea class="form-control" name="description" required></textarea>
       </div>
-      <div class="mb-3">
+      <!-- <div class="mb-3">
         <label>Author</label>
         <input class="form-control" name="author" required>
-      </div>
+      </div> -->
+
+      <input type="hidden" name="author" value="<%= currentUser ? currentUser.username : '' %>">
+
       <div class="mb-3">
         <label>Category</label>
         <input class="form-control" name="category" required>
